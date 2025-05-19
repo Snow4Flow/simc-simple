@@ -10,17 +10,9 @@ batch/jobm.txt
 batch/jobd.txt
 batch/jobs/
 
-# Release
-simc.zip
-
 # Jupyter
 .ipynb_checkpoints
 
 # Packaging
 simc.egg-info/
 build/
-
-# DEM, nav, output directories
-dem/
-nav/
-output/

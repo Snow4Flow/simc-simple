@@ -1,42 +1,30 @@
 [build-system]
 requires = [
     "setuptools>=61.0.0",
-    "wheel"
-]
+    "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "simc"
-version = "0.1.1"
-description = "Multi-planet surface clutter simulation"
+name = "simc_simple"
+version = "0.2"
+description = "Simplified fork of Multi-planet surface clutter simulation, now intended only for Earth"
 readme = "README.md"
 requires-python = ">=3.6"
 license = {file = "LICENSE.txt"}
 authors = [
-    {name = "Michael Christoffersen"},
-    {email = "mchristo28@gmail.com"}
-]
+    {name = "Joseph MacGregor, original author: Michael Christoffersen"},
+    {email = "joseph.a.macgregor@nasa.gov, original author: mchristo28@gmail.com"}]
 dependencies = [
-    "pandas",
+    "argparse"
+    "configparser"
     "numpy",
-    "scipy",
-    "Pillow",
+    "pandas",
     "rasterio",
     "pyproj",
-    "h5py",
-    "scikit-image",
-    "geopandas",
-    "tqdm",
-    "matplotlib",
-    "requests"
-]
-
-[tool.setuptools.package-data]
-"simc.crs" = ["*.wkt", "*.wkt2"]
-
+    "tqdm"]
+    
 [project.urls]
-repository = "https://github.com/lpl-tapir/simc"
+repository = "https://github.com/Snow4Flow/simc_simple"
 
 [project.scripts]
-simc = "simc.main:main"
-simc-fetch-marsis = "simc.fetch.marsis_fetch:main"
+simc_simple = "simc_simple.main:main"
