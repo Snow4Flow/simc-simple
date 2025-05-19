@@ -44,13 +44,13 @@ def calcBounds(dem, nav, xyzsys, atDist, ctDist):
     corners = np.zeros((len(nav) * 9, 3))
 
     for i in range(len(nav)):
-        corners[(i * 9):((i * 9) + 9), 0], 
-        corners[(i * 9):((i * 9) + 9), 1], 
-        corners[(i * 9):((i * 9) + 9), 2] = simc_simple.sim.genGrid(nav.iloc[i], 
-                                                                    1, 
-                                                                    1, 
-                                                                    atDist, 
-                                                                    ctDist)
+        gx, gy, gz                          = simc_simple.sim.genGrid(nav.iloc[i], 
+                                                                      1, 
+                                                                      1, 
+                                                                      atDist, 
+                                                                      ctDist)
+        corners[(i * 9):((i * 9) + 9), :]   = np.stack((gx, gy, gz), 
+                                                       axis=1)
 
     demX, demY, _ = Transformer.from_crs(xyzsys, dem.crs).transform(corners[:, 0], 
                                                                     corners[:, 1], 
