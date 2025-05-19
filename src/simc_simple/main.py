@@ -54,10 +54,7 @@ def main():
 
     simc_simple.output.save(confDict, 
                             oDict, 
-                            nav.iloc[inv].reset_index(), 
-                            dem, 
-                            win, 
-                            demData)
+                            nav.iloc[inv].reset_index())
     dem.close()
 
 if __name__ == "__main__":
