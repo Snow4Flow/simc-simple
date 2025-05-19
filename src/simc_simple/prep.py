@@ -1,6 +1,6 @@
 import numpy as np
 import pyproj
-import simc.sim
+import simc_simple.sim
 
 def prep(confDict, nav):
 
@@ -40,7 +40,7 @@ def calcBounds(dem, demCrs, nav, xyzsys, atDist, ctDist):
     corners = np.zeros((len(nav) * 9, 3))
 
     for i in range(len(nav)):
-        gx, gy, gz                          = simc.sim.genGrid(nav, 1, 1, atDist, ctDist, i)
+        gx, gy, gz                          = simc_simple.sim.genGrid(nav, 1, 1, atDist, ctDist, i)
         corners[(i * 9):((i * 9) + 9), :]   = np.hstack((gx, gy, gz))
 
     demX, demY, _ = pyproj.Transformer.from_crs(xyzsys, demCrs).transform(corners[:, 0], 
