@@ -1,3 +1,5 @@
+STILL NEEDS UPDATING...SOME STUFF TRIMMED
+
 Guide to the MultiSim Clutter Simulator
 
 Michael Christoffersen
@@ -28,7 +30,6 @@ an image that can be qualitatively compared to the radar image to help
 determine if a candidate subsurface reflector is in fact from a surface
 feature.
 
-
 1. Overview
 
 The MultiSim Clutter Simulator (MultiSim) was written to replace UTSIM,
@@ -49,12 +50,7 @@ information, or are complex shapes (such as a geoid). Because of this,
 the user must make sure that all of the input data is referenced to the
 same vertical datum. 
 
-3. Cluttergram datum
-
-Cluttergrams can be produced datumed to the transmitter, or can be
-warped/shifted to be datumed to a different elevation. When 
-
-4. Config file structure
+3. Config file structure
 
 [paths]
 dem_path = [Path to the DEM to be used in the simulation]
@@ -68,27 +64,9 @@ navfunc = [Name of the function to read navigation data]
 speedlight = [Speed of light to use in meters/second]
 sampsize = [Sampling period of radar data in seconds]
 tracelen = [Number of samples in each trace]
-body = [Body that is being sounded]
 
 [facet_params]
 at_dist = [Distance to the front and rear for each nav point]
 ct_dist = [Distance to either side]
 at_step = [Along track facet dimension]
 ct_step = [Cross track facet dimension]
-
-[datum_params]
-datum = [Datum information]
-datum_sample = [Sample in radargram to assign datum to]
-
-[display_params]						
-show_nadir = [Show nadir return in output image]
-show_fret = [Show first return in output image]
-
-[outputs]
-combined_adjusted = [Output a combined adjusted product]
-combined = [Output a combined product]
-left = [Outut a left product]
-right = [Output a right product]
-binary = [Output a binary product]
-echomap = [Output an echomap]
-

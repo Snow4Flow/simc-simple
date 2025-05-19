@@ -1,58 +1,50 @@
 import argparse
 import configparser
-import os
-import sys
-
-import matplotlib.pyplot as plt
 import numpy as np
-
-import simc.parseNav
-
+import os
+import pandas as pd
+import sys
+from pyproj import CRS, Transformer
 
 def parseCmd():
+
     # Build argparser and parse command line args
     parser = argparse.ArgumentParser(description="Run a clutter simulation.")
-    parser.add_argument("confPath", help="Path to configuration file (.ini)")
-    parser.add_argument(
-        "-n",
-        dest="navPath",
-        help="Path to navigation file - overrides any path in config file",
-    )
-    parser.add_argument(
-        "-d",
-        dest="demPath",
-        help="Path to DEM file - overrides any path in config file",
-    )
-    parser.add_argument(
-        "-o",
-        dest="outPath",
-        help="Path to output products - overrides any path in config file",
-    )
-    parser.add_argument("-p", action="store_true", help="Display progress bar")
+    parser.add_argument("confPath", 
+                        help="Path to configuration file (.ini)")
+    parser.add_argument("-n",
+                        dest="navPath",
+                        help="Path to navigation file - overrides any path in config file")
+    parser.add_argument("-d",
+                        dest="demPath",
+                        help="Path to DEM file - overrides any path in config file")
+    parser.add_argument("-o",
+                        dest="outPath",
+                        help="Path to output products - overrides any path in config file")
+    parser.add_argument("-p", 
+                        action="store_true", 
+                        help="Display progress bar")
     args = parser.parse_args()
 
     # Store in dict, expand any relative paths
-    argDict = {}
+    argDict             = {}
     argDict["confPath"] = os.path.abspath(args.confPath)
-    argDict["p"] = args.p
+    argDict["p"]        = args.p
 
     if args.navPath is not None:
         argDict["navPath"] = os.path.abspath(args.navPath)
     else:
         argDict["navPath"] = None
-
     if args.demPath is not None:
         argDict["demPath"] = os.path.abspath(args.demPath)
     else:
         argDict["demPath"] = None
-
     if args.outPath is not None:
         argDict["outPath"] = os.path.abspath(args.outPath)
     else:
         argDict["outPath"] = None
 
     return argDict
-
 
 def readConfig(argDict):
     """
@@ -75,21 +67,15 @@ def readConfig(argDict):
         print(err)
         sys.exit(1)
 
-    confDict = {
-        section: dict(config.items(section)) for section in config.sections()
-    }  # Dict of config file.
+    confDict = {section: dict(config.items(section)) for section in config.sections()}  # dict of config file
 
-    # Substitute in command line args if necessary
-    if argDict["navPath"] is not None:
-        # Command line arg overrides config file
+    # Substitute in command line args if necessary,  command line arg overrides config file
+    if argDict["navPath"] is not None:       
         confDict["paths"]["navpath"] = argDict["navPath"]
-
     if argDict["demPath"] is not None:
         confDict["paths"]["dempath"] = argDict["demPath"]
-
     if argDict["outPath"] is not None:
         confDict["paths"]["outpath"] = argDict["outPath"]
-
     if confDict["paths"]["sigpath"].strip() not in (None, ""):
         confDict["simParams"]["coherent"] = True
     else:
@@ -99,40 +85,31 @@ def readConfig(argDict):
     if not os.path.exists(confDict["paths"]["navpath"]):
         print("Invalid path to navigation file - file does not exist.")
         sys.exit(1)
-
     if not os.path.exists(confDict["paths"]["dempath"]):
         print("Invalid path to DEM file - file does not exist.")
         sys.exit(1)
-
     if not os.path.exists(confDict["paths"]["outpath"]):
         print("Invalid path to output files - folder does not exist.")
         sys.exit(1)
-
-    if confDict["simParams"]["coherent"]:
-        if not os.path.exists(confDict["paths"]["sigpath"]):
-            print("Invalid path to signal file - file does not exist.")
-            sys.exit(1)
-
+    if not os.path.exists(confDict["paths"]["sigpath"]):
+        print("Invalid path to signal file - file does not exist.")
+        sys.exit(1)
         # Load signal to use for coherent simulation
-        confDict["simParams"]["signal"] = np.loadtxt(
-            confDict["paths"]["sigpath"], dtype=np.complex128
-        )
+        confDict["simParams"]["signal"] = np.loadtxt(confDict["paths"]["sigpath"], 
+                                                     dtype=np.complex128)
 
     # Make output prefix
     if confDict["paths"]["outpath"][-1] != "/":
         confDict["paths"]["outpath"] += "/"
 
-    navfile = confDict["paths"]["navpath"].split("/")[-1]
-    navname = navfile.split(".")[0]
-    confDict["paths"]["outpath"] = confDict["paths"]["outpath"] + navname + "_"
-
-    # Set log file path
-    confDict["paths"]["logpath"] = confDict["paths"]["outpath"] + "simLog.txt"
-
+    navfile                         = confDict["paths"]["navpath"].split("/")[-1]
+    navname                         = navfile.split(".")[0]
+    confDict["paths"]["outpath"]    = confDict["paths"]["outpath"] + navname + "_"
+    
     # Assign correct data types for non-string config items
-    confDict["simParams"]["speedlight"] = float(confDict["simParams"]["speedlight"])
-    confDict["simParams"]["dt"] = float(confDict["simParams"]["dt"])
-    confDict["simParams"]["tracesamples"] = int(confDict["simParams"]["tracesamples"])
+    confDict["simParams"]["speedlight"]     = float(confDict["simParams"]["speedlight"])
+    confDict["simParams"]["dt"]             = float(confDict["simParams"]["dt"])
+    confDict["simParams"]["tracesamples"]   = int(confDict["simParams"]["tracesamples"])
 
     confDict["facetParams"]["atdist"] = float(confDict["facetParams"]["atdist"])
     confDict["facetParams"]["ctdist"] = float(confDict["facetParams"]["ctdist"])
@@ -148,24 +125,6 @@ def readConfig(argDict):
             print("Invalid value for outputs:" + key)
             print('Must be "True" or "False"')
             sys.exit(1)
-
-    if confDict["simParams"]["dembump"].lower() in boolDict:
-        confDict["simParams"]["dembump"] = boolDict[
-            confDict["simParams"]["dembump"].lower()
-        ]
-    else:
-        print("Invalid value for simParams:dembump")
-        print('Must be "True" or "False"')
-        sys.exit(1)
-
-    if confDict["simParams"]["deminterp"].lower() in boolDict:
-        confDict["simParams"]["deminterp"] = boolDict[
-            confDict["simParams"]["deminterp"].lower()
-        ]
-    else:
-        print("Invalid value for simParams:deminterp")
-        print('Must be "True" or "False"')
-        sys.exit(1)
 
     # Check that facet extent and dimensions are legal
     if confDict["facetParams"]["atdist"] < confDict["facetParams"]["atstep"]:
@@ -188,49 +147,25 @@ def readConfig(argDict):
         print("ctdist must be integer multiple of ctstep")
         sys.exit(1)
 
-    # Load internal xyz and spherical coordinate systems (IAU 2015)
-    base = __file__.split("/")[:-1]
-    base = "/".join(base)
-    xyzD = {
-        "mars": base + "/crs/mars2015_cartesian.wkt2",
-        "moon": base + "/crs/moon2015_cartesian.wkt2",
-        "earth": base + "/crs/epsg4978.wkt",
-    }
-
-    lleD = {
-        "mars": base + "/crs/mars2015_planetocentric.wkt2",
-        "moon": base + "/crs/moon2015_planetocentric.wkt2",
-        "earth": base + "/crs/epsg4326.wkt",
-    }
-
-    for k, v in xyzD.items():
-        fd = open(v, mode="r")
-        xyzD[k] = fd.read()
-        fd.close()
-
-    for k, v in lleD.items():
-        fd = open(v, mode="r")
-        lleD[k] = fd.read()
-        fd.close()
-
-    body = confDict["simParams"]["body"]
-
-    if body in xyzD.keys():
-        confDict["navigation"]["xyzsys"] = xyzD[body]
-        confDict["navigation"]["llesys"] = lleD[body]
-    else:
-        print(
-            'Invalid body "'
-            + body
-            + '" in conf file, valid options are: '
-            + str(list(xyzD.keys()))
-        )
-        sys.exit(1)
+    confDict["navigation"]["xyzsys"] = CRS.from_epsg(4978).to_wkt()
+    confDict["navigation"]["llesys"] = CRS.from_epsg(4326).to_wkt()
 
     return confDict
 
+def readNav(navPath, navSys, xyzSys):
 
-def readNav(navPath, navSys, xyzSys, navFunc):
-    # Call the user specified navigation file parser
-    nav = eval("simc.parseNav." + navFunc)(navPath, navSys, xyzSys)
-    return nav
+    df = pd.read_csv(navPath, 
+                     sep=",")
+    
+    required = ["x", "y", "z", "datum"]
+    for r in required:
+        if r not in df.keys():
+            raise RuntimeError(
+                "Missing necessary field in navigation file.\n\tRequired fields: %s\n\tFound fields: %s"
+                % (required, list(df.keys())))
+        
+    df["x"], df["y"], df["z"] = Transformer.from_crs(crs_from=navSys, 
+                                                     crs_to=xyzSys).transform(df["x"].to_numpy(), 
+                                                                              df["y"].to_numpy(),
+                                                                              df["z"].to_numpy())
+    return df
