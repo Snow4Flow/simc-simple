@@ -1,6 +1,6 @@
 import numpy as np
 
-def sim(confDict, dem, nav, xform, demData, gt):
+def sim(confDict, demNodata, nav, xform, demData, gt):
 
     atStep  = confDict["facetParams"]["atstep"]
     ctStep  = confDict["facetParams"]["ctstep"]
@@ -30,7 +30,7 @@ def sim(confDict, dem, nav, xform, demData, gt):
     demz[valid]                          = demData[iy[valid], ix[valid]]
 
     # Mark nodata vals as invalid
-    valid[demz == dem.nodata] = False
+    valid[demz == demNodata] = False
 
     # if there are no valid facets
     if np.sum(valid) == 0:

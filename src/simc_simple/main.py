@@ -38,11 +38,11 @@ def main():
                                              colSub)
     demData = dem.read(1, 
                        window=win)
-    gt      = ~demData.window_transform(win) # # geotransform DEM x,y to pixel coordinates
+    gt      = ~dem.window_transform(win) # # geotransform DEM x,y to pixel coordinates
 
     for i in tqdm.tqdm(range(len(nav)), 
                        disable=(not argDict["p"])):
-        fcalc = simc_simple.sim.sim(confDict, dem, nav.iloc[i], xform, demData, gt)
+        fcalc = simc_simple.sim.sim(confDict, dem.nodata, nav.iloc[i], xform, demData, gt)
         if fcalc.shape[0] == 0:
             continue
         
