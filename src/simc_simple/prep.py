@@ -1,6 +1,6 @@
 import numpy as np
-import pyproj
 import simc_simple.sim
+from pyproj import Transformer
 
 def prep(confDict, nav):
 
@@ -12,7 +12,7 @@ def prep(confDict, nav):
 
     # remove duplicate entries, calculate inverse
     _, idxUniq, inv = np.unique(nav, return_index=True, return_inverse=True, axis=0)
-    nav             = nav.iloc[idxUniq, :].reset_index()
+    nav             = nav.iloc[idxUniq].reset_index()
 
     # velocity vector components
     vx          = np.gradient(nav["x"])
@@ -44,19 +44,28 @@ def calcBounds(dem, nav, xyzsys, atDist, ctDist):
     corners = np.zeros((len(nav) * 9, 3))
 
     for i in range(len(nav)):
-        gx, gy, gz                          = simc_simple.sim.genGrid(nav, 
-                                                                      1, 
-                                                                      1, 
-                                                                      atDist, 
-                                                                      ctDist, 
-                                                                      i)
-        corners[(i * 9):((i * 9) + 9), :]   = np.stack((gx, gy, gz), 
-                                                       axis=1)
+        corners[(i * 9):((i * 9) + 9), 0], 
+        corners[(i * 9):((i * 9) + 9), 1], 
+        corners[(i * 9):((i * 9) + 9), 2] = simc_simple.sim.genGrid(nav.iloc[i], 
+                                                                    1, 
+                                                                    1, 
+                                                                    atDist, 
+                                                                    ctDist)
 
-    demX, demY, _ = pyproj.Transformer.from_crs(xyzsys, dem.crs).transform(corners[:, 0], 
-                                                                           corners[:, 1], 
-                                                                           corners[:, 2])
+    demX, demY, _ = Transformer.from_crs(xyzsys, dem.crs).transform(corners[:, 0], 
+                                                                    corners[:, 1], 
+                                                                    corners[:, 2])
 
     ix, iy = ~dem.transform * (demX, demY)
+    bounds = np.array([np.min(ix), np.max(ix), np.min(iy), np.max(iy)]).astype(int)
 
-    return np.array([np.min(ix), np.max(ix), np.min(iy), np.max(iy)]).astype(int)
+    if bounds[0] < 0:
+        bounds[0] = 0
+    if bounds[1] > dem.width - 1:
+        bounds[1] = dem.width - 1
+    if bounds[2] < 0:
+        bounds[2] = 0
+    if bounds[3] > dem.height - 1:
+        bounds[3] = dem.height - 1
+
+    return bounds

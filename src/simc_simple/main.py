@@ -42,7 +42,7 @@ def main():
 
     for i in tqdm.tqdm(range(len(nav)), 
                        disable=(not argDict["p"])):
-        fcalc = simc_simple.sim.sim(confDict, dem, nav, xform, demData, gt, i)
+        fcalc = simc_simple.sim.sim(confDict, dem, nav.iloc[i], xform, demData, gt)
         if fcalc.shape[0] == 0:
             continue
         
@@ -54,7 +54,7 @@ def main():
 
     simc_simple.output.save(confDict, 
                             oDict, 
-                            nav.iloc[inv, :].reset_index(), 
+                            nav.iloc[inv].reset_index(), 
                             dem, 
                             win, 
                             demData)

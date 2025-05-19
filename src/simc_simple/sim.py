@@ -1,6 +1,6 @@
 import numpy as np
 
-def sim(confDict, dem, nav, xform, demData, gt, i):
+def sim(confDict, dem, nav, xform, demData, gt):
 
     atStep  = confDict["facetParams"]["atstep"]
     ctStep  = confDict["facetParams"]["ctstep"]
@@ -10,7 +10,7 @@ def sim(confDict, dem, nav, xform, demData, gt, i):
     ctNum   = ctDist // ctStep
 
     # generate grid in xyz space
-    gx, gy, gz = genGrid(nav, ctNum, atNum, atStep, ctStep, i)
+    gx, gy, gz = genGrid(nav, ctNum, atNum, atStep, ctStep)
 
     # Transform to DEM CRS and sample DEM
     gtx, gty, _ = xform.transform(gx, gy, gz)
@@ -57,16 +57,16 @@ def sim(confDict, dem, nav, xform, demData, gt, i):
         gspread = 4.0
 
     fcalc = calcFacetsFriis(facets,
-                            nav["x"][i],
-                            nav["y"][i],
-                            nav["z"][i],
+                            nav["x"],
+                            nav["y"],
+                            nav["z"],
                             confDict["simParams"]["speedlight"],
                             gspread)
 
     if "dipole" in confDict["simParams"].keys() and confDict["simParams"]["dipole"]:
         fcalc = half_wave_dipole_gain(fcalc, 
-                                      (nav["x"][i], nav["y"][i], nav["z"][i]), 
-                                      nav["uv"][i])
+                                      (nav["x"], nav["y"], nav["z"]), 
+                                      nav["uv"])
 
     return fcalc
 
@@ -168,20 +168,20 @@ def calcFacetsFriis(f, px, py, pz, c, gspread):
 
     return fcalc
 
-def genGrid(nav, ctNum, atNum, atStep, ctStep, i):
+def genGrid(nav, ctNum, atNum, atStep, ctStep):
 
     # Use meshgrid to come up with vectors to grid points
     mgrd = np.meshgrid(np.arange(-ctNum, ctNum + 1), 
                        np.arange(atNum, -atNum - 1, -1))
 
     # Generate XYZ grid
-    ua = nav["uv"][i] * atStep # along track vector (forward)
-    uc = nav["ul"][i] * ctStep # cross track vector (right)
+    ua = nav["uv"] * atStep # along track vector (forward)
+    uc = nav["ul"] * ctStep # cross track vector (right)
 
     # Add vectors to nav points to get grid
-    gx = (mgrd[1] * ua[0]) + (mgrd[0] * uc[0]) + nav["x"][i]
-    gy = (mgrd[1] * ua[1]) + (mgrd[0] * uc[1]) + nav["y"][i]
-    gz = (mgrd[1] * ua[2]) + (mgrd[0] * uc[2]) + nav["z"][i]
+    gx = (mgrd[1] * ua[0]) + (mgrd[0] * uc[0]) + nav["x"]
+    gy = (mgrd[1] * ua[1]) + (mgrd[0] * uc[1]) + nav["y"]
+    gz = (mgrd[1] * ua[2]) + (mgrd[0] * uc[2]) + nav["z"]
 
     return gx.flatten(), gy.flatten(), gz.flatten()
 
