@@ -6,7 +6,7 @@
 
 import numpy as np
 import rasterio as rio
-import simc_simple
+import simc_simple.ingest, simc_simple.prep, simc_simple.sim, simc_simple.output
 import tqdm
 from pyproj import CRS, Transformer
 
