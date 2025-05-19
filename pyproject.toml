@@ -13,7 +13,7 @@ requires-python = ">=3.6"
 license = {file = "LICENSE.txt"}
 authors = [
     {name = "Joseph MacGregor, original author: Michael Christoffersen"},
-    {email = "joseph.a.macgregor@nasa.gov, original author: mchristo28@gmail.com"}]
+    {email = "joseph.a.macgregor@nasa.gov"}]
 dependencies = [
     "argparse",
     "configparser",
