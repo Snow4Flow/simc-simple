@@ -12,7 +12,7 @@ def prep(confDict, nav):
 
     # remove duplicate entries, calculate inverse
     _, idxUniq, inv = np.unique(nav, return_index=True, return_inverse=True, axis=0)
-    nav             = nav[idxUniq].reset_index(drop=True)
+    nav             = nav.iloc[idxUniq, :].reset_index()
 
     # velocity vector components
     vx          = np.gradient(nav["x"])
