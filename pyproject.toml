@@ -15,8 +15,8 @@ authors = [
     {name = "Joseph MacGregor, original author: Michael Christoffersen"},
     {email = "joseph.a.macgregor@nasa.gov, original author: mchristo28@gmail.com"}]
 dependencies = [
-    "argparse"
-    "configparser"
+    "argparse",
+    "configparser",
     "numpy",
     "pandas",
     "rasterio",
