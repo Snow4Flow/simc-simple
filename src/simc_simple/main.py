@@ -26,7 +26,6 @@ def main():
     nav, oDict, inv = simc_simple.prep.prep(confDict, 
                                             nav)
     bounds          = simc_simple.prep.calcBounds(dem,
-                                                  dem.crs,
                                                   nav,
                                                   confDict["navigation"]["xyzsys"],
                                                   confDict["facetParams"]["atdist"],

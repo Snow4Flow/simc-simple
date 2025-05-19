@@ -11,7 +11,8 @@ def prep(confDict, nav):
     oDict["fret"]       = np.zeros((traces, 3)).astype(np.float64)
 
     # remove duplicate entries, calculate inverse
-    nav, inv = np.unique(nav, return_inverse=True, axis=0)
+    _, idxUniq, inv = np.unique(nav, return_index=True, return_inverse=True, axis=0)
+    nav             = nav.iloc[idxUniq, :].reset_index()
 
     # velocity vector components
     vx          = np.gradient(nav["x"])
@@ -35,17 +36,22 @@ def prep(confDict, nav):
 
     return nav, oDict, inv
 
-def calcBounds(dem, demCrs, nav, xyzsys, atDist, ctDist):
+def calcBounds(dem, nav, xyzsys, atDist, ctDist):
 
     corners = np.zeros((len(nav) * 9, 3))
 
     for i in range(len(nav)):
-        gx, gy, gz                          = simc_simple.sim.genGrid(nav, 1, 1, atDist, ctDist, i)
+        gx, gy, gz                          = simc_simple.sim.genGrid(nav, 
+                                                                      1, 
+                                                                      1, 
+                                                                      atDist, 
+                                                                      ctDist, 
+                                                                      i)
         corners[(i * 9):((i * 9) + 9), :]   = np.hstack((gx, gy, gz))
 
-    demX, demY, _ = pyproj.Transformer.from_crs(xyzsys, demCrs).transform(corners[:, 0], 
-                                                                          corners[:, 1], 
-                                                                          corners[:, 2])
+    demX, demY, _ = pyproj.Transformer.from_crs(xyzsys, dem.crs).transform(corners[:, 0], 
+                                                                           corners[:, 1], 
+                                                                           corners[:, 2])
 
     ix, iy = ~dem.transform * (demX, demY)
 

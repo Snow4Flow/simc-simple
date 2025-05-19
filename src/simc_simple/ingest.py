@@ -154,9 +154,8 @@ def readNav(navPath, navSys, xyzSys):
     required = ["x", "y", "z", "datum"]
     for r in required:
         if r not in df.keys():
-            raise RuntimeError(
-                "Missing necessary field in navigation file.\n\tRequired fields: %s\n\tFound fields: %s"
-                % (required, list(df.keys())))
+            raise RuntimeError("Missing necessary field in navigation file.\n\tRequired fields: %s\n\tFound fields: %s" 
+                               % (required, list(df.keys())))
         
     df["x"], df["y"], df["z"] = Transformer.from_crs(crs_from=navSys, 
                                                      crs_to=xyzSys).transform(df["x"].to_numpy(), 
