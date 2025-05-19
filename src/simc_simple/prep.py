@@ -12,14 +12,15 @@ def prep(confDict, nav):
 
     # remove duplicate entries, calculate inverse
     _, idxUniq, inv = np.unique(nav, return_index=True, return_inverse=True, axis=0)
-    nav             = nav.iloc[idxUniq, :].reset_index()
+    nav             = nav[idxUniq].reset_index(drop=True)
 
     # velocity vector components
     vx          = np.gradient(nav["x"])
     vy          = np.gradient(nav["y"])
     vz          = np.gradient(nav["z"])
     vMag        = np.sqrt((vx ** 2) + (vy ** 2) + (vz ** 2))
-    v           = np.hstack((vx, vy, vz)) / vMag
+    v           = np.stack((vx / vMag, vy / vMag, vz / vMag), 
+                           axis=1)
     nav["uv"]   = list(v)
 
     # vector to center of Earth
@@ -27,12 +28,14 @@ def prep(confDict, nav):
     cy      = -nav["y"]
     cz      = -nav["z"]
     cMag    = np.sqrt((cx ** 2) + (cy ** 2) + (cz ** 2))
-    c       = np.hstack((cx, cy, cz)) / cMag
+    c       = np.stack((cx / cMag, cy / cMag, cz / cMag), 
+                       axis=1)
 
     # right pointing cross track vector
     l           = np.cross(c, v)
     lMag        = np.sqrt((l[:, 0] ** 2) + (l[:, 1] ** 2) + (l[:, 2] ** 2))
-    nav["ul"]   = list(l / np.hstack((lMag, lMag, lMag)))
+    nav["ul"]   = list(l / np.stack((lMag, lMag, lMag), 
+                                    axis=1))
 
     return nav, oDict, inv
 
@@ -47,7 +50,8 @@ def calcBounds(dem, nav, xyzsys, atDist, ctDist):
                                                                       atDist, 
                                                                       ctDist, 
                                                                       i)
-        corners[(i * 9):((i * 9) + 9), :]   = np.hstack((gx, gy, gz))
+        corners[(i * 9):((i * 9) + 9), :]   = np.stack((gx, gy, gz), 
+                                                       axis=1)
 
     demX, demY, _ = pyproj.Transformer.from_crs(xyzsys, dem.crs).transform(corners[:, 0], 
                                                                            corners[:, 1], 

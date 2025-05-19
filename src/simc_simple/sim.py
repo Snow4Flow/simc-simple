@@ -45,7 +45,8 @@ def sim(confDict, dem, nav, xform, demData, gt, i):
     sy      = np.reshape(sy, shape)
     sz      = np.reshape(sz, shape)
     valid   = np.reshape(valid, shape)
-    surface = np.hstack((sx, sy, sz))
+    surface = np.stack((sx, sy, sz), 
+                       axis=1)
     facets  = genFacets(surface, 
                         valid)
 

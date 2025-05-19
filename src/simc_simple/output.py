@@ -34,14 +34,15 @@ def save(confDict, oDict, nav):
                                                                                          oDict["fret"][:, 2])
 
     np.savetxt(confDict["paths"]["outpath"] + "firstReturn.csv",
-               np.hstack((flat, 
-                          flon, 
-                          felev, 
-                          ((((2 * np.sqrt(((nav["x"].to_numpy() - oDict["fret"][:, 0]) ** 2) + 
-                                          ((nav["y"].to_numpy() - oDict["fret"][:, 1]) ** 2) + 
-                                          ((nav["z"].to_numpy() - oDict["fret"][:, 2]) ** 2))) / 
-                                          confDict["simParams"]["speedlight"]) - nav["datum"].to_numpy()) 
-                                          / confDict["simParams"]["dt"]).astype(np.int32))), 
+               np.stack((flat, 
+                         flon, 
+                         felev, 
+                         ((((2 * np.sqrt(((nav["x"].to_numpy() - oDict["fret"][:, 0]) ** 2) + 
+                                         ((nav["y"].to_numpy() - oDict["fret"][:, 1]) ** 2) + 
+                                         ((nav["z"].to_numpy() - oDict["fret"][:, 2]) ** 2))) / 
+                                         confDict["simParams"]["speedlight"]) - nav["datum"].to_numpy()) 
+                                         / confDict["simParams"]["dt"]).astype(np.int32)), 
+                                         axis=1), 
                delimiter=",",
                header="lat,lon,elev,sample",
                fmt="%.6f,%.6f,%.3f,%d",
