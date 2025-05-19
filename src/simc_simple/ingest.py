@@ -91,12 +91,6 @@ def readConfig(argDict):
     if not os.path.exists(confDict["paths"]["outpath"]):
         print("Invalid path to output files - folder does not exist.")
         sys.exit(1)
-    if not os.path.exists(confDict["paths"]["sigpath"]):
-        print("Invalid path to signal file - file does not exist.")
-        sys.exit(1)
-        # Load signal to use for coherent simulation
-        confDict["simParams"]["signal"] = np.loadtxt(confDict["paths"]["sigpath"], 
-                                                     dtype=np.complex128)
 
     # Make output prefix
     if confDict["paths"]["outpath"][-1] != "/":
